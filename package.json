@@ -1,0 +1,24 @@
+{
+  "name": "fastify-client-service",
+  "version": "1.0.0",
+  "description": "A project to test fastify and client service architecture",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "docker-compose up --build"
+  },
+  "keywords": [],
+  "author": "k1fl1k",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "22.5.5"
+  },
+  "dependencies": {
+    "@mgcrea/fastify-request-logger": "1.7.1",
+    "@mgcrea/pino-pretty-compact": "1.4.2",
+    "dotenv": "16.4.5",
+    "fastify": "4.28.1",
+    "pino-pretty": "11.2.2"
+  },
+  "packageManager": "pnpm@9.12.2+sha512.22721b3a11f81661ae1ec68ce1a7b879425a1ca5b991c975b074ac220b187ce56c708fe5db69f4c962c989452eee76c82877f4ee80f474cebd61ee13461b6228"
+}
