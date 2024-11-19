@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - .:/srv/node/app # Corrected the placement of "volumes"
+      - .:/srv/node/app
     networks:
       - app_net
     ports:
@@ -23,6 +23,20 @@ services:
     depends_on:
       - app
 
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: node
+      POSTGRES_PASSWORD: password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app_net
+
 networks:
   app_net:
     driver: bridge
+
+volumes:
+  pgdata:

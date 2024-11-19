@@ -1,95 +1,35 @@
-const { randomUUID } = require("node:crypto");
+const client = require('../db');
 
-/**
- * @description A repository for managing resources
- */
 class ResourceRepository {
-    constructor() {
-        this.storage = new Map();
-    }
-
-    /**
-     * Create a new resource with the given data
-     * @param {ResourceShape} data
-     * @returns {Promise<ResourceInstance>}
-     */
     async create(data) {
-        // Generate a random UUID for the new resource
-        const id = randomUUID();
-
-        const syncedTimestamp = Date.now();
-
-        // Store the new resource in the storage
-        this.storage.set(id, {
-            id,
-            ...data,
-            createdAt: syncedTimestamp,
-            updatedAt: syncedTimestamp,
-        });
-
-        // Return the newly created resource
-        return this.storage.get(id);
+        const { name, type, amount, price } = data;
+        const query = 'INSERT INTO resources (name, type, amount, price) VALUES ($1, $2, $3, $4) RETURNING *';
+        const values = [name, type, amount, price];
+        const res = await client.query(query, values);
+        return res.rows[0];
     }
 
-    /**
-     * @template I
-     * Read a resource with the given ID or all resources if no ID is provided
-     * @param {I} [id]
-     * @returns {Promise< I extends string ? ResourceInstance : ResourceInstance[]>}
-     */
-    async read(id) {
-        // Check if the resource with the given ID exists
-        if (id && !this.storage.has(id)) {
-            throw new Error("Resource not found");
-        }
-
-        // Return the resource with the given ID or all resources
-        return id ? this.storage.get(id) : Array.from(this.storage.values());
+    async findAll() {
+        const res = await client.query('SELECT * FROM resources');
+        return res.rows;
     }
 
-    /**
-     * Update a resource with the given ID using the provided data
-     * @param {string} id
-     * @param {ResourceShape} data
-     * @returns {Promise<ResourceInstance>}
-     */
+    async findById(id) {
+        const res = await client.query('SELECT * FROM resources WHERE id = $1', [id]);
+        return res.rows[0];
+    }
+
     async update(id, data) {
-        if (!this.storage.has(id)) {
-            throw new Error("Resource not found");
-        }
-
-        // Ensure the ID is not updated
-        // @ts-ignore - id is forbidden to be updated in the data but still potentially be provided
-        delete data.id;
-
-        // Update the resource with the new data
-        this.storage.set(id, {
-            ...this.storage.get(id),
-            ...data,
-            updatedAt: Date.now(),
-        });
-
-        // Return the updated resource
-        return this.storage.get(id);
+        const { name, type, amount, price } = data;
+        const query = 'UPDATE resources SET name = $1, type = $2, amount = $3, price = $4, updated_at = NOW() WHERE id = $5 RETURNING *';
+        const values = [name, type, amount, price, id];
+        const res = await client.query(query, values);
+        return res.rows[0];
     }
 
-    /**
-     * Delete a resource with the given ID
-     * @param {string} id
-     * @returns {Promise<ResourceInstance>}
-     */
     async delete(id) {
-        if (!this.storage.has(id)) {
-            throw new Error("Resource not found");
-        }
-
-        // Remove the resource from the storage
-        const resource = this.storage.get(id);
-
-        this.storage.delete(id);
-
-        // Return the deleted resource
-        return resource;
+        const res = await client.query('DELETE FROM resources WHERE id = $1 RETURNING *', [id]);
+        return res.rows[0];
     }
 }
 
