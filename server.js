@@ -15,7 +15,8 @@ const startServer = async () => {
         fastify = bootstrapFastify();
 
         // Define the port and host
-        const port = PORT; // Use the port from the config
+        const port = PORT;
+        console.log(PORT) // Use the port from the config
         const host = HOST; // Use the host from the config
 
         // Start listening on the specified port and host

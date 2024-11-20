@@ -8,6 +8,7 @@ services:
     networks:
       - app_net
     ports:
+      - "3000:3000"
       - "9229:9229"
 
   nginx:
@@ -34,9 +35,20 @@ services:
     networks:
       - app_net
 
+  mongo:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongodata:/data/db
+    networks:
+      - app_net
+
 networks:
   app_net:
     driver: bridge
 
 volumes:
   pgdata:
+  mongodata:

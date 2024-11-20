@@ -1,46 +1,52 @@
 const Fastify = require("fastify");
-require("pino-pretty");
-
 const { IS_DEV_ENV } = require("./config");
 const { patchRouting } = require("./routes");
+const pino = require('pino');
+const pinoMongo = require('pino-mongodb');
+const postgresProvider = require('./postgresProvider');
 
-/**
- * Initializes and configures the Fastify instance
- * @returns {import("fastify").FastifyInstance} Configured Fastify instance
- */
-const bootstrapFastify = () => {
-  // Create a Fastify instance with desired options
+// Підключення до PostgreSQL
+const postgresConfig = {
+  user: 'node',
+  host: 'db',
+  database: 'mydb',
+  password: 'password',
+  port: 5432,
+};
+
+const bootstrapFastify = async () => {
+  // Ініціалізація PostgreSQL провайдера
+  await postgresProvider.init(postgresConfig);
+
+  // Підключення до MongoDB для логування
+  const mongoUri = 'mongodb://root:example@mongo:27017/mydb';
+  const stream = await pinoMongo({ uri: mongoUri, collection: 'logs' });
+
+  // Створення інстансу Fastify з налаштуваннями
   const fastify = Fastify({
     exposeHeadRoutes: false,
     connectionTimeout: 20000,
     ignoreTrailingSlash: false,
-    logger: !IS_DEV_ENV || {
-      level: "debug",
+    logger: pino({
+      level: 'debug',
+      stream,
       transport: {
-        target: "@mgcrea/pino-pretty-compact",
+        target: 'pino-pretty',
         options: {
           colorize: true,
           translateTime: "HH:MM:ss Z",
           ignore: "pid,hostname",
         },
       },
-    },
+    }),
     disableRequestLogging: true,
   });
 
-  // Register plugins, routes, etc.
+  // Реєстрація плагінів, маршрутів тощо
   patchRouting(fastify);
 
   if (IS_DEV_ENV) {
-    // @ts-ignore - local dev dependency
-    // require("@mgcrea/pino-pretty-compact");
-
-    // @ts-ignore - local dev dependency
     fastify.register(require("@mgcrea/fastify-request-logger"), {});
-
-    fastify.ready(() => {
-      console.log(`\nAPI Structure\n${fastify.printRoutes()}`);
-    });
   }
 
   return fastify;

@@ -16,6 +16,8 @@ WORKDIR /srv/node/app
 
 RUN pnpm install -g nodemon
 
+RUN pnpm install pg
+
 # Copy package.json and install dependencies
 COPY package*.json ./
 
