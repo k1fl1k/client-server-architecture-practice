@@ -1,11 +1,11 @@
-const { resourceRepository } = require("./../../repositories/resource.repo");
+const { bookRepository } = require("./../../repositories/book.repo");
 
 module.exports = {
     /**
      * @type {import('fastify').RouteOptions}
      */
-    deleteResource: {
-        url: "/resources/:id",
+    deleteBook: {
+        url: "/books/:id",
         method: "DELETE",
         schema: {
             params: {
@@ -18,15 +18,12 @@ module.exports = {
         },
         handler: async (request, reply) => {
             try {
-                // @ts-ignore - We know that the params is defined
                 const targetId = request.params.id;
-
-                const deleted = await resourceRepository.delete(targetId);
-
+                const deleted = await bookRepository.delete(targetId);
                 return reply.code(200).send(deleted);
             } catch (error) {
                 request.log.error(error);
-                return reply.code(500).send({ error: "Failed to delete resource" });
+                return reply.code(500).send({ error: "Failed to delete book" });
             }
         },
     },

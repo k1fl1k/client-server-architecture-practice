@@ -1,20 +1,19 @@
-const { resourceRepository } = require("./../../repositories/resource.repo");
+const { authorRepository } = require("./../../repositories/author.repo");
 
 module.exports = {
     /**
      * @type {import('fastify').RouteOptions}
      */
-    getResources: {
-        url: "/resources",
+    getAuthors: {
+        url: "/authors",
         method: "GET",
         handler: async (request, reply) => {
             try {
-                const list = await resourceRepository.read();
-
+                const list = await authorRepository.findAll();
                 return reply.code(200).send(list);
             } catch (error) {
                 request.log.error(error);
-                return reply.code(500).send({ error: "Failed to fetch resources" });
+                return reply.code(500).send({ error: "Failed to fetch authors" });
             }
         },
     },

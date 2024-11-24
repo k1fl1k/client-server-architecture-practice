@@ -12,18 +12,37 @@ client.connect()
     .then(() => {
         console.log('Connected to PostgreSQL');
         return client.query(`
-            CREATE TABLE IF NOT EXISTS resources (
+            CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
                 name VARCHAR(255) NOT NULL,
-                type VARCHAR(255) NOT NULL,
-                amount INTEGER NOT NULL,
-                price NUMERIC(10, 2) NOT NULL,
+                email VARCHAR(255) NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
     })
-    .then(() => console.log('Table "resources" is ready'))
+    .then(() => {
+        return client.query(`
+            CREATE TABLE IF NOT EXISTS authors (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+    })
+    .then(() => {
+        return client.query(`
+            CREATE TABLE IF NOT EXISTS books (
+                id SERIAL PRIMARY KEY,
+                title VARCHAR(255) NOT NULL,
+                author_id INTEGER REFERENCES authors(id),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+    })
+    .then(() => console.log('Tables "users", "authors", and "books" are ready'))
     .catch(err => console.error('Connection error', err.stack));
 
 module.exports = client;
